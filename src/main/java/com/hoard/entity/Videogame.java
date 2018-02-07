@@ -11,7 +11,7 @@ public class Videogame {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    private String email;
+    private Integer userId;
 
     private String title;
     private String developer;
@@ -23,9 +23,9 @@ public class Videogame {
     public Videogame() {
     }
 
-    public Videogame(Integer id, String email, String title, String developer, String platform, Boolean isPlayed, Boolean isPlaying, Boolean isComplete) {
+    public Videogame(Integer id, Integer userId, String title, String developer, String platform, Boolean isPlayed, Boolean isPlaying, Boolean isComplete) {
         this.id = id;
-        this.email = email;
+        this.userId = userId;
         this.title = title;
         this.developer = developer;
         this.platform = platform;
@@ -42,12 +42,12 @@ public class Videogame {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public Integer getuserId() {
+        return userId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setuserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {
