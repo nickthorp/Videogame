@@ -20,8 +20,7 @@ public class Videogame {
     private Boolean isPlaying = false;
     private Boolean isComplete = false;
 
-    public Videogame() {
-    }
+    public Videogame() {}
 
     public Videogame(Integer id, Integer userId, String title, String developer, String platform, Boolean isPlayed, Boolean isPlaying, Boolean isComplete) {
         this.id = id;

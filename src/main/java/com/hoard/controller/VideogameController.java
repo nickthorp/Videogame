@@ -9,17 +9,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping(path="/api")
+@RequestMapping(path="/api/videogame")
 public class VideogameController {
     @Autowired
     private VideogameRepository videogameRepository;
 
-    @GetMapping(path="/videogame")
+    @GetMapping(path="/get")
     public @ResponseBody Videogame getVideogame (@RequestParam Integer id) {
         return videogameRepository.findOne(id);
     }
 
-    @GetMapping(path="/videogame/all")
+    @GetMapping(path="/get/all")
     public @ResponseBody Iterable<Videogame> getAllVideogames(@RequestParam Integer userId) {
         return videogameRepository.findByUserId(userId);
     }
@@ -36,7 +36,7 @@ public class VideogameController {
         return new ResponseEntity<Videogame>(videogame, HttpStatus.OK);
     }
 
-    @DeleteMapping(path="/videogame")
+    @DeleteMapping(path="/delete")
     public ResponseEntity<Videogame> delete(@RequestParam Integer id) {
         Videogame videogame = videogameRepository.findOne(id);
         if (videogame == null) {
