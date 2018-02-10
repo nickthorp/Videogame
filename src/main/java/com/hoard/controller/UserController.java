@@ -18,13 +18,17 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping(path="/get")
-    public @ResponseBody User getUser (@RequestParam Integer id) {
-        return userRepository.findOne(id);
+    public ResponseEntity getUser (@RequestParam Integer id) {
+        User result = userRepository.findOne(id);
+        if ( result == null) {
+            return new ResponseEntity<>("User not found.", HttpStatus.OK);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping(path="/post")
     public ResponseEntity update(@Valid @RequestBody User user){
-        User result;
+/*        User result;
         if (user != null) {
             List<User> check = userRepository.findByEmail(user.getEmail());
             if ( !check.isEmpty() && user.getId() != null && user.getId().equals( check.get(0).getId()) ) {
@@ -38,6 +42,9 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
+*/
+        userRepository.save(user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @DeleteMapping(path="/delete")

@@ -20,6 +20,7 @@ public class User {
     private Integer id;
     @NotBlank
     @Email
+    @Column(unique = true)
     private String email;
     private String userName;
     private String firstName;

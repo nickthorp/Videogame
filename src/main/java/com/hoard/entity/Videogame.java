@@ -1,5 +1,7 @@
 package com.hoard.entity;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +15,7 @@ public class Videogame {
 
     private Integer userId;
 
+    @NotEmpty
     private String title;
     private String developer;
     private String platform;
