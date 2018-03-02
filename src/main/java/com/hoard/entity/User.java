@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -22,9 +24,13 @@ public class User {
     @Email
     @Column(unique = true)
     private String email;
+    @NotBlank
     private String userName;
     private String firstName;
     private String lastName;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Videogame> videogameSet = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

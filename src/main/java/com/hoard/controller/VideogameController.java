@@ -24,16 +24,27 @@ public class VideogameController {
         return videogameRepository.findByUserId(userId);
     }
 
-    @PostMapping(path="/post")
-    public ResponseEntity<Videogame> update(@RequestBody Videogame videogame){
+    @PostMapping(path="/create")
+    public ResponseEntity<Videogame> create(@RequestBody Videogame videogame){
         if (videogame != null) {
-            if (videogame.getuserId() != null && videogame.getTitle() !=null) {
+            if (videogame.getUser() != null && videogame.getTitle() !=null) {
                 videogameRepository.save(videogame);
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }
         return new ResponseEntity<Videogame>(videogame, HttpStatus.OK);
+    }
+
+    @PutMapping(path = "/update")
+    public ResponseEntity update(@RequestBody Videogame videogame) {
+        if ( videogame.getId() == null ) {
+            return new ResponseEntity<>("Please provide a valid ID.", HttpStatus.BAD_REQUEST);
+        }
+        if ( videogameRepository.findOne(videogame.getId()) == null ) {
+            return new ResponseEntity<>("Videogame not found.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
     }
 
     @DeleteMapping(path="/delete")

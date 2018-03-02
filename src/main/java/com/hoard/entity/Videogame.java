@@ -1,11 +1,9 @@
 package com.hoard.entity;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Videogame {
@@ -13,9 +11,11 @@ public class Videogame {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    private Integer userId;
+    @JsonIgnore
+    @ManyToOne
+    private User user;
 
-    @NotEmpty
+    @NotBlank
     private String title;
     private String developer;
     private String platform;
@@ -25,17 +25,6 @@ public class Videogame {
 
     public Videogame() {}
 
-    public Videogame(Integer id, Integer userId, String title, String developer, String platform, Boolean isPlayed, Boolean isPlaying, Boolean isComplete) {
-        this.id = id;
-        this.userId = userId;
-        this.title = title;
-        this.developer = developer;
-        this.platform = platform;
-        this.isPlayed = isPlayed;
-        this.isPlaying = isPlaying;
-        this.isComplete = isComplete;
-    }
-
     public Integer getId() {
         return id;
     }
@@ -44,13 +33,9 @@ public class Videogame {
         this.id = id;
     }
 
-    public Integer getuserId() {
-        return userId;
-    }
+    public User getUser() { return user; }
 
-    public void setuserId(Integer userId) {
-        this.userId = userId;
-    }
+    public void setUser(User user) { this.user = user; }
 
     public String getTitle() {
         return title;
