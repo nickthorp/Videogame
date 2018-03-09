@@ -16,8 +16,8 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping(path = "/get")
-    public ResponseEntity getUser(@RequestParam Integer id) {
+    @GetMapping(path = "/get/{id}")
+    public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {
         User user = userRepository.findOne(id);
         if (user == null) {
             return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
@@ -37,12 +37,12 @@ public class UserController {
         }
     }
 
-    @PutMapping(path = "/update")
-    public ResponseEntity update(@RequestBody User user) {
-        if (user.getId() == null) {
+    @PutMapping(path = "/update/{id}")
+    public ResponseEntity update(@PathVariable(value="id") Integer id, @RequestBody User user) {
+        if (id == null) {
             return new ResponseEntity<>("Please provide a valid user ID.", HttpStatus.BAD_REQUEST);
         }
-        if ( userRepository.findOne(user.getId()) == null ) {
+        if ( userRepository.findOne(id) == null ) {
             return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
         }
         if ( user.getEmail().isEmpty() || user.getEmail() == null ) {
@@ -54,18 +54,23 @@ public class UserController {
         if ( user.getUserName().isEmpty() || user.getUserName() == null ) {
             return new ResponseEntity<>("Please provide a valid username.", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
+        User update = userRepository.findOne(id);
+        update.setEmail(user.getEmail());
+        update.setFirstName(user.getFirstName());
+        update.setLastName(user.getLastName());
+        update.setUserName(user.getUserName());
+        return new ResponseEntity<>(userRepository.save(update), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/delete")
-    public ResponseEntity delete(@RequestParam Integer id) {
-        User user = userRepository.findOne(id);
-        if (user.getId() == null) {
+    @DeleteMapping(path = "/delete/{id}")
+    public ResponseEntity delete(@PathVariable(value="id") Integer id) {
+        if (id == null) {
             return new ResponseEntity<>("Please provide a valid user ID.", HttpStatus.BAD_REQUEST);
         }
-        if ( userRepository.findOne(user.getId()) == null ) {
+        if ( userRepository.findOne(id) == null ) {
             return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
         }
+        User user = userRepository.findOne(id);
         userRepository.delete(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

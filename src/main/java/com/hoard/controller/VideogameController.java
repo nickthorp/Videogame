@@ -1,6 +1,8 @@
 package com.hoard.controller;
 
+import com.hoard.entity.User;
 import com.hoard.entity.Videogame;
+import com.hoard.repository.UserRepository;
 import com.hoard.repository.VideogameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class VideogameController {
     @Autowired
     private VideogameRepository videogameRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping(path="/get")
     public @ResponseBody Videogame getVideogame (@RequestParam Integer id) {
@@ -24,16 +28,20 @@ public class VideogameController {
         return videogameRepository.findByUserId(userId);
     }
 
-    @PostMapping(path="/create")
-    public ResponseEntity<Videogame> create(@RequestBody Videogame videogame){
+    @PostMapping(path="/create/{id}")
+    public ResponseEntity create(@PathVariable(value="id") Integer id, @RequestBody Videogame videogame){
+        if (id == null) {return new ResponseEntity<>("No user ID provided!",HttpStatus.BAD_REQUEST);}
+        User user = userRepository.findOne(id);
         if (videogame != null) {
-            if (videogame.getUser() != null && videogame.getTitle() !=null) {
+            if (videogame.getTitle() !=null) {
+                videogame.setUser(user);
                 videogameRepository.save(videogame);
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Bad videogame!",HttpStatus.BAD_REQUEST);
             }
         }
         return new ResponseEntity<Videogame>(videogame, HttpStatus.OK);
+
     }
 
     @PutMapping(path = "/update")
