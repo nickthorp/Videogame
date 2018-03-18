@@ -28,10 +28,10 @@ public class VideogameController {
         return videogameRepository.findByUserId(userId);
     }
 
-    @PostMapping(path="/create/{id}")
-    public ResponseEntity create(@PathVariable(value="id") Integer id, @RequestBody Videogame videogame){
-        if (id == null) {return new ResponseEntity<>("No user ID provided!",HttpStatus.BAD_REQUEST);}
-        User user = userRepository.findOne(id);
+    @PostMapping(path="/create/{userId}")
+    public ResponseEntity create(@PathVariable(value="userId") Integer userId, @RequestBody Videogame videogame){
+        if (userId == null) {return new ResponseEntity<>("No user ID provided!",HttpStatus.BAD_REQUEST);}
+        User user = userRepository.findOne(userId);
         if (videogame != null) {
             if (videogame.getTitle() !=null) {
                 videogame.setUser(user);

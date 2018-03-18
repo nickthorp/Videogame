@@ -29,8 +29,10 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Videogame> videogameSet = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            mappedBy = "user")
+    private Set<Videogame> videogames = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -98,5 +100,13 @@ public class User {
 
     public void setDateModified(Date dateModified) {
         this.dateModified = dateModified;
+    }
+
+    public Set<Videogame> getVideogames() {
+        return videogames;
+    }
+
+    public void setVideogames(Set<Videogame> videogames) {
+        this.videogames = videogames;
     }
 }

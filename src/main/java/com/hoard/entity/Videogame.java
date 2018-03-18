@@ -1,7 +1,6 @@
 package com.hoard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
@@ -12,8 +11,10 @@ public class Videogame {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    @ManyToOne
+    //@JsonProperty
     private User user;
 
     @NotBlank
@@ -34,9 +35,8 @@ public class Videogame {
         this.id = id;
     }
 
-    @JsonIgnore
     public User getUser() { return user; }
-    @JsonProperty
+
     public void setUser(User user) { this.user = user; }
 
     public String getTitle() {
