@@ -90,17 +90,10 @@ public class User {
         return dateCreated;
     }
 
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
     public Date getDateModified() {
         return dateModified;
     }
 
-    public void setDateModified(Date dateModified) {
-        this.dateModified = dateModified;
-    }
 
     public Set<Videogame> getVideogames() {
         return videogames;
