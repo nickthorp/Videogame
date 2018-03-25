@@ -1,7 +1,8 @@
 package com.hoard.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.hoard.views.View;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -17,29 +18,36 @@ import java.util.Date;
 public class Videogame {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+    @JsonView(View.Summary.class)
     private Integer id;
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonView(View.SummaryWithUser.class)
     private User user;
-
     @NotBlank
+    @JsonView(View.Summary.class)
     private String title;
+    @JsonView(View.Summary.class)
     private String developer;
+    @JsonView(View.Summary.class)
     private String platform;
+    @JsonView(View.Summary.class)
     private Boolean isPlayed = false;
+    @JsonView(View.Summary.class)
     private Boolean isPlaying = false;
+    @JsonView(View.Summary.class)
     private Boolean isComplete = false;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
+    @JsonView(View.Summary.class)
     private Date dateCreated;
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
+    @JsonView(View.Summary.class)
     private Date dateModified;
 
     public Videogame() {}
@@ -51,7 +59,7 @@ public class Videogame {
     public void setId(Integer id) {
         this.id = id;
     }
-    @JsonIgnore
+    //@JsonIgnore
     public User getUser() { return user; }
 
     public void setUser(User user) { this.user = user; }

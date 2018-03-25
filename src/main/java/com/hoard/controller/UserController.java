@@ -1,7 +1,9 @@
 package com.hoard.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.hoard.entity.User;
 import com.hoard.repository.UserRepository;
+import com.hoard.views.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping(path = "/get/{id}")
+    @JsonView(View.SummaryWithList.class)
     public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {
         User user = userRepository.findOne(id);
         if (user == null) {
@@ -37,6 +40,7 @@ public class UserController {
         }
     }
 
+    //TODO Add JSON View
     @PutMapping(path = "/update/{id}")
     public ResponseEntity update(@PathVariable(value="id") Integer id, @RequestBody User user) {
         if (id == null) {
@@ -62,6 +66,7 @@ public class UserController {
         return new ResponseEntity<>(userRepository.save(update), HttpStatus.OK);
     }
 
+    //TODO Add JSON View
     @DeleteMapping(path = "/delete/{id}")
     public ResponseEntity delete(@PathVariable(value="id") Integer id) {
         if (id == null) {

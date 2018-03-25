@@ -1,6 +1,8 @@
 package com.hoard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.hoard.views.View;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,29 +21,34 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(View.Summary.class)
     private Integer id;
     @NotBlank
     @Email
     @Column(unique = true)
+    @JsonView(View.Summary.class)
     private String email;
     @NotBlank
+    @JsonView(View.Summary.class)
     private String userName;
+    @JsonView(View.Summary.class)
     private String firstName;
+    @JsonView(View.Summary.class)
     private String lastName;
-
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "user")
+    @JsonView(View.SummaryWithList.class)
     private Set<Videogame> videogames = new HashSet<>();
-
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
+    @JsonView(View.Summary.class)
     private Date dateCreated;
-
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
+    @JsonView(View.Summary.class)
     private Date dateModified;
 
     public User(){}
@@ -93,7 +100,6 @@ public class User {
     public Date getDateModified() {
         return dateModified;
     }
-
 
     public Set<Videogame> getVideogames() {
         return videogames;
