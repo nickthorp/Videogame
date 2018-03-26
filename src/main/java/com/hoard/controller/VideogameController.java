@@ -30,10 +30,14 @@ public class VideogameController {
         return new ResponseEntity<>(videogame, HttpStatus.OK);
     }
 
-    // TODO Add path variable and JSON Views
     @GetMapping(path="/get/all/{userId}")
-    public @ResponseBody Iterable<Videogame> getAllVideogames(@RequestParam Integer userId) {
-        return videogameRepository.findByUserId(userId);
+    @JsonView(View.Summary.class)
+    public ResponseEntity getAllVideogames(@PathVariable(value = "userId") Integer userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null){
+            return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(videogameRepository.findByUserId(userId), HttpStatus.OK);
     }
 
     @PostMapping(path="/create/{userId}")
@@ -53,26 +57,28 @@ public class VideogameController {
 
     }
 
-    //TODO Add path variable and JSON Views
-    @PutMapping(path = "/update")
-    public ResponseEntity update(@RequestBody Videogame videogame) {
-        if ( videogame.getId() == null ) {
-            return new ResponseEntity<>("Please provide a valid ID.", HttpStatus.BAD_REQUEST);
-        }
-        if ( videogameRepository.findOne(videogame.getId()) == null ) {
+    @PutMapping(path = "/update/{id}")
+    @JsonView(View.SummaryWithUser.class)
+    public ResponseEntity update(@PathVariable(value ="id") Integer id,@RequestBody Videogame videogame) {
+        Videogame lookup = videogameRepository.findOne(id);
+        if ( lookup == null ) {
             return new ResponseEntity<>("Videogame not found.", HttpStatus.BAD_REQUEST);
         }
+        if ( id != videogame.getId() ) {
+            return new ResponseEntity<>("Invalid id. Ensure id in JSON body matches id in HTTP request", HttpStatus.BAD_REQUEST);
+        }
+        //TODO Add logic to compare game state. Do nothing if equal.
         return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
     }
 
-    //TODO Add path variable and JSON Views
-    @DeleteMapping(path="/delete")
-    public ResponseEntity<Videogame> delete(@RequestParam Integer id) {
+    @DeleteMapping(path="/delete/{id}")
+    @JsonView(View.SummaryWithUser.class)
+    public ResponseEntity delete(@PathVariable(value = "id") Integer id) {
         Videogame videogame = videogameRepository.findOne(id);
         if (videogame == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Videogame not found", HttpStatus.BAD_REQUEST);
         }
         videogameRepository.delete(videogame);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(videogame, HttpStatus.OK);
     }
 }
