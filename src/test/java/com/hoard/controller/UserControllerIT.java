@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URL;
 
+import static io.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -29,7 +30,7 @@ public class UserControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        this.base = new URL("http://localhost:" + port + "/api/user/create");
+        this.base = new URL("http://localhost:" + port + "/api/user/get/1");
     }
 
     @Test
@@ -37,5 +38,10 @@ public class UserControllerIT {
         ResponseEntity<String> response = template.getForEntity(base.toString(),
                 String.class);
         assertThat(response.getBody(), equalTo("User not found."));
+    }
+
+    @Test
+    public void getUser() {
+        get("/api/user/get/1").then().body("", equalTo("User not found."));
     }
 }

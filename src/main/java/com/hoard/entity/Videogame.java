@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Entity // This tells Hibernate to make a table out of this class
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"dateCreated", "dateModified"},
+@JsonIgnoreProperties(value = {"dateCreated", "dateModified", "deleted"},
         allowGetters = true)
 public class Videogame {
     @Id
@@ -37,18 +37,17 @@ public class Videogame {
     private Boolean isPlaying = false;
     @JsonView(View.Summary.class)
     private Boolean isComplete = false;
-
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     @JsonView(View.Summary.class)
     private Date dateCreated;
-
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     @JsonView(View.Summary.class)
     private Date dateModified;
+    private Boolean deleted;
 
     public Videogame() {}
 
@@ -116,4 +115,13 @@ public class Videogame {
 
     public Date getDateModified() { return dateModified; }
 
+    public boolean equals( Videogame videogame) {
+        return ( this.title.equals(videogame.getTitle()) &&
+                this.developer.equals(videogame.getDeveloper()) &&
+                this.platform.equals(videogame.getPlatform()) &&
+                this.isComplete == videogame.getIsComplete() &&
+                this.isPlayed == videogame.getIsPlayed() &&
+                this.isPlaying == videogame.getIsPlaying()
+        );
+    }
 }

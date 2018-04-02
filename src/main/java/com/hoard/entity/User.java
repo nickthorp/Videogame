@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"dateCreated", "dateModified"},
+@JsonIgnoreProperties(value = {"dateCreated", "dateModified", "deleted"},
         allowGetters = true)
 public class User {
     @Id
@@ -50,6 +50,7 @@ public class User {
     @LastModifiedDate
     @JsonView(View.Summary.class)
     private Date dateModified;
+    private Boolean deleted;
 
     public User(){}
 

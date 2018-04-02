@@ -33,8 +33,7 @@ public class VideogameController {
     @GetMapping(path="/get/all/{userId}")
     @JsonView(View.Summary.class)
     public ResponseEntity getAllVideogames(@PathVariable(value = "userId") Integer userId) {
-        User user = userRepository.findOne(userId);
-        if (user == null){
+        if (userRepository.findOne(userId) == null){
             return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(videogameRepository.findByUserId(userId), HttpStatus.OK);
@@ -43,19 +42,18 @@ public class VideogameController {
     @PostMapping(path="/create/{userId}")
     @JsonView(View.SummaryWithUser.class)
     public ResponseEntity create(@PathVariable(value="userId") Integer userId, @RequestBody Videogame videogame){
-        if (userId == null) {return new ResponseEntity<>("No user ID provided!",HttpStatus.BAD_REQUEST);}
+        if (userId == null) {return new ResponseEntity<>("No user ID provided.",HttpStatus.BAD_REQUEST);}
         User user = userRepository.findOne(userId);
-        if (videogame != null) {
-            if (videogame.getTitle() !=null) {
-                videogame.setUser(user);
-                videogameRepository.save(videogame);
-            } else {
-                return new ResponseEntity<>("Bad videogame!",HttpStatus.BAD_REQUEST);
-            }
+        if (user == null) {return new ResponseEntity<>("User not found.",HttpStatus.BAD_REQUEST);}
+        if (videogame != null && videogame.getTitle() != null) {
+            videogame.setUser(user);
+            return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Bad videogame!",HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Videogame>(videogame, HttpStatus.OK);
-
     }
+
+    //TODO Create method to do a batch create
 
     @PutMapping(path = "/update/{id}")
     @JsonView(View.SummaryWithUser.class)
@@ -64,10 +62,13 @@ public class VideogameController {
         if ( lookup == null ) {
             return new ResponseEntity<>("Videogame not found.", HttpStatus.BAD_REQUEST);
         }
-        if ( id != videogame.getId() ) {
+        if ( !id.equals(videogame.getId()) ) {
             return new ResponseEntity<>("Invalid id. Ensure id in JSON body matches id in HTTP request", HttpStatus.BAD_REQUEST);
         }
-        //TODO Add logic to compare game state. Do nothing if equal.
+        if (lookup.equals(videogame)) {
+            return new ResponseEntity<>("No change.", HttpStatus.OK);
+        }
+        videogame.setUser(lookup.getUser());
         return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
     }
 
@@ -79,6 +80,9 @@ public class VideogameController {
             return new ResponseEntity<>("Videogame not found", HttpStatus.BAD_REQUEST);
         }
         videogameRepository.delete(videogame);
-        return new ResponseEntity<>(videogame, HttpStatus.OK);
+        if ( videogameRepository.findOne(id) == null ) {
+            return new ResponseEntity<>("Item successfully deleted.", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Error deleting item.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -42,12 +42,16 @@ public class UserController {
 
     //TODO Add JSON View
     @PutMapping(path = "/update/{id}")
+    @JsonView(View.Summary.class)
     public ResponseEntity update(@PathVariable(value="id") Integer id, @RequestBody User user) {
         if (id == null) {
             return new ResponseEntity<>("Please provide a valid user ID.", HttpStatus.BAD_REQUEST);
         }
         if ( userRepository.findOne(id) == null ) {
             return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
+        }
+        if ( !id.equals(user.getId())) {
+            return new ResponseEntity<>("Invalid id. Ensure id in JSON body matches id in HTTP request", HttpStatus.BAD_REQUEST);
         }
         if ( user.getEmail().isEmpty() || user.getEmail() == null ) {
             return new ResponseEntity<>("Please provide a valid email address.", HttpStatus.BAD_REQUEST);
@@ -67,7 +71,9 @@ public class UserController {
     }
 
     //TODO Add JSON View
+    //TODO Add deleting of all user's items?
     @DeleteMapping(path = "/delete/{id}")
+    @JsonView(View.Summary.class)
     public ResponseEntity delete(@PathVariable(value="id") Integer id) {
         if (id == null) {
             return new ResponseEntity<>("Please provide a valid user ID.", HttpStatus.BAD_REQUEST);
