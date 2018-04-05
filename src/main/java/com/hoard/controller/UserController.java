@@ -18,6 +18,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    //@GetMapping(path = "/get/{id}", produces = "application/json")
     @GetMapping(path = "/get/{id}")
     @JsonView(View.SummaryWithList.class)
     public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {

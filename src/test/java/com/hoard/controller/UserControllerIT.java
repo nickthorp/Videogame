@@ -1,5 +1,8 @@
 package com.hoard.controller;
 
+import com.hoard.entity.User;
+import com.hoard.repository.UserRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +23,8 @@ import static org.junit.Assert.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerIT {
 
+    @Autowired
+    private UserRepository userRepository;
     @LocalServerPort
     private int port;
 
@@ -30,18 +35,38 @@ public class UserControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        this.base = new URL("http://localhost:" + port + "/api/user/get/1");
+        this.base = new URL("http://localhost:" + port + "/api/");
+        User user1 = new User("user1@email.com", "xxUserxx", "Scratch", "Pheonix");
+        User user2 = new User("user2@email.com", "Flergington", "First", "Last");
+        User user3 = new User("user3@email.com", "DankMemeGod", "Bob", "Everyman");
+        userRepository.save(user1);
+        //userRepository.save(user2);
+        //userRepository.save(user3);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        userRepository.delete(userRepository.findByEmail("user1@email.com"));
+        //userRepository.delete(userRepository.findOne(2));
+        //userRepository.delete(userRepository.findOne(3));
     }
 
     @Test
     public void getHello() {
-        ResponseEntity<String> response = template.getForEntity(base.toString(),
+        ResponseEntity<String> response = template.getForEntity(base.toString().concat("user/get/9"),
                 String.class);
         assertThat(response.getBody(), equalTo("User not found."));
     }
 
     @Test
-    public void getUser() {
-        get("/api/user/get/1").then().body("", equalTo("User not found."));
+    public void getNonExistentUser() {
+        assertThat( get( base.toString().concat("user/get/8") ).asString(), equalTo("User not found.") );
     }
+
+    @Test
+    public void getUser() {
+        get(base.toString().concat("user/get/1")).then().body("id", equalTo(2));
+        //assertThat( get( base.toString().concat("user/get/1") ).asString(), equalTo("User not found.") );
+    }
+
 }
