@@ -1,6 +1,7 @@
 package com.hoard.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.hoard.Application;
 import com.hoard.entity.User;
 import com.hoard.entity.Videogame;
 import com.hoard.repository.UserRepository;
@@ -20,53 +21,53 @@ public class VideogameController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping(path="/get/{id}")
+    @GetMapping(path="/get/{id}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)
     public ResponseEntity getVideogame (@PathVariable(value = "id") Integer id) {
         Videogame videogame = videogameRepository.findOne(id);
         if (videogame == null) {
-            return new ResponseEntity<>("Videogame not found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(videogame, HttpStatus.OK);
     }
 
-    @GetMapping(path="/get/all/{userId}")
+    @GetMapping(path="/get/all/{userId}",produces = "application/json")
     @JsonView(View.Summary.class)
     public ResponseEntity getAllVideogames(@PathVariable(value = "userId") Integer userId) {
         if (userRepository.findOne(userId) == null){
-            return new ResponseEntity<>("User not found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(videogameRepository.findByUserId(userId), HttpStatus.OK);
     }
 
-    @PostMapping(path="/create/{userId}")
+    @PostMapping(path="/create/{userId}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)
     public ResponseEntity create(@PathVariable(value="userId") Integer userId, @RequestBody Videogame videogame){
-        if (userId == null) {return new ResponseEntity<>("No user ID provided.",HttpStatus.BAD_REQUEST);}
+        if (userId == null) {return new ResponseEntity<>(Application.errors.get("INVALID_ID"),HttpStatus.BAD_REQUEST);}
         User user = userRepository.findOne(userId);
-        if (user == null) {return new ResponseEntity<>("User not found.",HttpStatus.BAD_REQUEST);}
+        if (user == null) {return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"),HttpStatus.NOT_FOUND);}
         if (videogame != null && videogame.getTitle() != null) {
             videogame.setUser(user);
             return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Bad videogame!",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("MALFORMED_JSON"),HttpStatus.BAD_REQUEST);
         }
     }
 
     //TODO Create method to do a batch create
 
-    @PutMapping(path = "/update/{id}")
+    @PutMapping(path = "/update/{id}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)
     public ResponseEntity update(@PathVariable(value ="id") Integer id,@RequestBody Videogame videogame) {
         Videogame lookup = videogameRepository.findOne(id);
         if ( lookup == null ) {
-            return new ResponseEntity<>("Videogame not found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
         }
         if ( !id.equals(videogame.getId()) ) {
-            return new ResponseEntity<>("Invalid id. Ensure id in JSON body matches id in HTTP request", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("INVALID_ID"), HttpStatus.BAD_REQUEST);
         }
         if (lookup.equals(videogame)) {
-            return new ResponseEntity<>("No change.", HttpStatus.OK);
+            return new ResponseEntity<>(Application.errors.get("NO_CHANGE"), HttpStatus.OK);
         }
         videogame.setUser(lookup.getUser());
         return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.OK);
@@ -77,12 +78,12 @@ public class VideogameController {
     public ResponseEntity delete(@PathVariable(value = "id") Integer id) {
         Videogame videogame = videogameRepository.findOne(id);
         if (videogame == null) {
-            return new ResponseEntity<>("Videogame not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
         }
         videogameRepository.delete(videogame);
         if ( videogameRepository.findOne(id) == null ) {
-            return new ResponseEntity<>("Item successfully deleted.", HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>("Error deleting item.", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Application.errors.get("ITEM_DELETE_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

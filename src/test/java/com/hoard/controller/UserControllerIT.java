@@ -36,7 +36,7 @@ public class UserControllerIT {
     @Before
     public void setUp() throws Exception {
         this.base = new URL("http://localhost:" + port + "/api/");
-        User user1 = new User("user1@email.com", "xxUserxx", "Scratch", "Pheonix");
+        User user1 = new User("user1@email.com", "xxUserxx", "Scratch", "Phoenix");
         User user2 = new User("user2@email.com", "Flergington", "First", "Last");
         User user3 = new User("user3@email.com", "DankMemeGod", "Bob", "Everyman");
         userRepository.save(user1);
@@ -45,7 +45,7 @@ public class UserControllerIT {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         userRepository.delete(userRepository.findByEmail("user1@email.com"));
         //userRepository.delete(userRepository.findOne(2));
         //userRepository.delete(userRepository.findOne(3));
