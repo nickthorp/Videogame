@@ -1,8 +1,8 @@
 package com.hoard.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hoard.Application;
 import com.hoard.entity.User;
+import com.hoard.error.Errors;
 import com.hoard.repository.UserRepository;
 import com.hoard.views.View;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,68 +24,66 @@ public class UserController {
     public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {
         User user = userRepository.findOne(id);
         if (user == null) {
-            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    //TODO Check that included id is not duped
     @PostMapping(path = "/create", produces = "application/json")
     public ResponseEntity create(@RequestBody User user) {
-        if ( user.getId() != null ) { user.setId(null); }
+        if ( user.getId() != null ) {
+            return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
+        }
         if ( validateUserEmail(user.getEmail()) ){
-            // If username is blank, set to email
             if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
-            return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
+            return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>(Application.errors.get("ITEM_IN_USE"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.FORBIDDEN);
         }
     }
 
-    //TODO check for no change
     @PutMapping(path = "/update/{id}", produces = "application/json")
     @JsonView(View.Summary.class)
     public ResponseEntity update(@PathVariable(value="id") Integer id, @RequestBody User user) {
-        if (id == null) {
-            return new ResponseEntity<>(Application.errors.get("INVALID_ID"), HttpStatus.BAD_REQUEST);
+        if ( !id.equals(user.getId())) {
+            return new ResponseEntity<>(Errors.INVALID_ID, HttpStatus.BAD_REQUEST);
         }
         if ( userRepository.findOne(id) == null ) {
-            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        if ( !id.equals(user.getId())) {
-            return new ResponseEntity<>(Application.errors.get("INVALID_ID"), HttpStatus.BAD_REQUEST);
-        }
+        User lookup = userRepository.findOne(id);
         if ( user.getEmail().isEmpty() || user.getEmail() == null ) {
-            return new ResponseEntity<>(Application.errors.get("INVALID_EMAIL"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Errors.INVALID_EMAIL, HttpStatus.BAD_REQUEST);
         }
         if ( !validateUserEmail(user.getId(),user.getEmail()) ){
-            return new ResponseEntity<>(Application.errors.get("ITEM_IN_USE"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.BAD_REQUEST);
         }
         if ( user.getUserName().isEmpty() || user.getUserName() == null ) {
-            return new ResponseEntity<>(Application.errors.get("INVALID_USERNAME"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Errors.INVALID_USERNAME, HttpStatus.BAD_REQUEST);
         }
-        User update = userRepository.findOne(id);
-        update.setEmail(user.getEmail());
-        update.setFirstName(user.getFirstName());
-        update.setLastName(user.getLastName());
-        update.setUserName(user.getUserName());
-        return new ResponseEntity<>(userRepository.save(update), HttpStatus.OK);
+        if (lookup.equals(user)) {
+            return new ResponseEntity<>(Errors.NO_CHANGE, HttpStatus.OK);
+        }
+        lookup.setEmail(user.getEmail());
+        lookup.setFirstName(user.getFirstName());
+        lookup.setLastName(user.getLastName());
+        lookup.setUserName(user.getUserName());
+        return new ResponseEntity<>(userRepository.save(lookup), HttpStatus.OK);
     }
 
     //TODO Add deleting of all user's items?
-    //TODO response includes item deleted, or just success? Compare with videogame impl
-    @DeleteMapping(path = "/delete/{id}", produces = "application/json")
+    @DeleteMapping(path = "/delete/{id}")
     @JsonView(View.Summary.class)
     public ResponseEntity delete(@PathVariable(value="id") Integer id) {
-        if (id == null) {
-            return new ResponseEntity<>(Application.errors.get("INVALID_ID"), HttpStatus.BAD_REQUEST);
-        }
         if ( userRepository.findOne(id) == null ) {
-            return new ResponseEntity<>(Application.errors.get("ITEM_NOT_FOUND"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         User user = userRepository.findOne(id);
         userRepository.delete(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        if ( userRepository.findOne(id) == null ){
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(Errors.ITEM_DELETE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private Boolean validateUserEmail(Integer id, String email) {
