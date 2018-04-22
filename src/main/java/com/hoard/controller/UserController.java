@@ -19,6 +19,19 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @PostMapping(path = "/create", produces = "application/json")
+    public ResponseEntity create(@RequestBody User user) {
+        if ( user.getId() != null ) {
+            return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
+        }
+        if ( validateUserEmail(user.getEmail()) ){
+            if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
+                return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.FORBIDDEN);
+        }
+    }
+
     @GetMapping(path = "/get/{id}", produces = "application/json")
     @JsonView(View.SummaryWithList.class)
     public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {
@@ -27,19 +40,6 @@ public class UserController {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @PostMapping(path = "/create", produces = "application/json")
-    public ResponseEntity create(@RequestBody User user) {
-        if ( user.getId() != null ) {
-            return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
-        }
-        if ( validateUserEmail(user.getEmail()) ){
-            if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
-            return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.FORBIDDEN);
-        }
     }
 
     @PutMapping(path = "/update/{id}", produces = "application/json")

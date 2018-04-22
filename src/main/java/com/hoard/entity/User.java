@@ -50,11 +50,12 @@ public class User {
     @LastModifiedDate
     @JsonView(View.Summary.class)
     private Date dateModified;
-    private Boolean deleted;
+    //private Boolean deleted;
 
     public User(){}
 
-    public User( String email, String userName, String firstName, String lastName ){
+    public User(Integer id, String email, String userName, String firstName, String lastName ){
+        this.id        = id;
         this.email     = email;
         this.userName  = userName;
         this.firstName = firstName;

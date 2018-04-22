@@ -19,15 +19,15 @@ public enum Errors {
     @JsonView(View.Summary.class)
     private final int code;
     @JsonView(View.Summary.class)
-    private final String description;
+    private final String detail;
 
-    Errors(int code, String description) {
+    Errors(int code, String detail) {
         this.code = code;
-        this.description = description;
+        this.detail = detail;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDetail() {
+        return detail;
     }
 
     public int getCode() {
@@ -36,6 +36,6 @@ public enum Errors {
 
     @Override
     public String toString() {
-        return code + ": " + description;
+        return code + ": " + detail;
     }
 }
