@@ -14,7 +14,8 @@ public enum Errors {
     INVALID_EMAIL(5, "Please provide a valid email address."),
     INVALID_USERNAME(6, "Please provide a valid user name."),
     JSON_MALFORMED(7, "JSON formatting error."),
-    JSON_EXTRA_FIELD(8, "An erroneous JSON field was included.");
+    JSON_EXTRA_FIELD(8, "An erroneous JSON field was included."),
+    ITEM_CREATE_ERROR(9, "Error creating item.");
 
     @JsonView(View.Summary.class)
     private final int code;

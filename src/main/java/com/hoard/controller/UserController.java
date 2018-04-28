@@ -26,7 +26,13 @@ public class UserController {
         }
         if ( validateUserEmail(user.getEmail()) ){
             if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
-                return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+                User result = userRepository.save(user);
+                if ( result != null ){
+                    return new ResponseEntity<>(result, HttpStatus.CREATED);
+                } else {
+                    return new ResponseEntity<>(Errors.ITEM_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
         } else {
             return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.FORBIDDEN);
         }
@@ -94,10 +100,5 @@ public class UserController {
     private Boolean validateUserEmail(String email) {
         List<User> check = userRepository.findByEmail(email);
         return check.isEmpty();
-    }
-
-    private Boolean validateUserId(Integer id) {
-        User check = userRepository.findOne(id);
-        return (check == null );
     }
 }

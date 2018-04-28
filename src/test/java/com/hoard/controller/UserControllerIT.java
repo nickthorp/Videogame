@@ -1,5 +1,6 @@
 package com.hoard.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoard.entity.User;
 import com.hoard.repository.UserRepository;
 import org.junit.After;
@@ -11,13 +12,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,7 +37,7 @@ public class UserControllerIT {
     @InjectMocks
     private UserController userController;
     private User user1 = new User(1,"user1@email.com", "xxUserxx", "Scratch", "Phoenix");
-    private String user1JSON = "{\"id\": 1,\"email\": \"user1@email.com\",\"userName\": \"xxUserxx\",\"firstName\": \"Scratch\"}";
+    private User user2 = new User("user1@email.com", "xxUserxx", "Scratch", "Phoenix");
 
     @Before
     public void init() {
@@ -67,23 +73,39 @@ public class UserControllerIT {
     }
 
     @Test
-    public void createNewUser() {
-
+    public void createNewUser() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.save((User) Mockito.any())).thenReturn(user1);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user2)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id", is(user1.getId())));
     }
 
     @Test
-    public void createExistingUser() {
-
+    public void createUserIDSupplied() throws Exception {
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user1)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(8)));
     }
 
     @Test
-    public void createUserIDSupplied() {
-
-    }
-
-    @Test
-    public void createEmailInUse() {
-
+    public void createEmailInUse() throws Exception {
+        List<User> userlist = new ArrayList<User>();
+        userlist.add(user1);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(userlist);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user1)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(8)));
     }
 
     @Test
@@ -93,6 +115,11 @@ public class UserControllerIT {
 
     @Test
     public void createBlankUserNameSetToEmail() {
+
+    }
+
+    @Test
+    public void createUserInternalError() {
 
     }
 
@@ -144,5 +171,16 @@ public class UserControllerIT {
     @Test
     public void deleteInternalError() {
 
+    }
+
+    /*
+     * converts a Java object into JSON representation
+     */
+    public static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
