@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,8 +37,12 @@ public class UserControllerIT {
     private UserRepository userRepository;
     @InjectMocks
     private UserController userController;
-    private User user1 = new User(1,"user1@email.com", "xxUserxx", "Scratch", "Phoenix");
-    private User user2 = new User("user1@email.com", "xxUserxx", "Scratch", "Phoenix");
+    private User user = new User(1,"user@email.com", "xxUserxx", "Scratch", "Phoenix");
+    private User userUpdate = new User(1, "user@email.com", "SuperFly", "Dank", "Memes");
+    private User userNoId = new User("user@email.com", "xxUserxx", "Scratch", "Phoenix");
+    private User userBlankUsername = new User("user@email.com", "", "Scratch", "Phoenix");
+    private User userEmailUsername = new User(1, "user@email.com", "user@email.com", "Scratch", "Phoenix");
+    private User userNoIdEmailUsername = new User("user@email.com", "user@email.com", "Scratch", "Phoenix");
 
     @Before
     public void init() {
@@ -48,6 +53,68 @@ public class UserControllerIT {
     @After
     public void deinit() {
         mockMvc = null;
+    }
+
+    @Test
+    public void createNewUser() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.save((User) Mockito.any())).thenReturn(user);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userNoId)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id", is(user.getId())));
+    }
+
+    @Test
+    public void createUserIDSupplied() throws Exception {
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(8)));
+    }
+
+    @Test
+    public void createEmailInUse() throws Exception {
+        List<User> userlist = new ArrayList<>();
+        userlist.add(user);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(userlist);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userNoId)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code", is(2)));
+    }
+
+    @Test
+    public void createUserUsernameBlank() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.save(userNoIdEmailUsername)).thenReturn(userEmailUsername);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userBlankUsername)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id", is(user.getId())));
+    }
+
+    @Test
+    public void createUserInternalError() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.save(userNoId)).thenReturn(null);
+        mockMvc.perform(
+                post("/api/user/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userNoId)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("code", is(9)));
     }
 
     @Test
@@ -64,72 +131,32 @@ public class UserControllerIT {
     @Test
     public void getKnownUser() throws Exception {
         Mockito.when(
-                userRepository.findOne(1)).thenReturn(user1);
+                userRepository.findOne(1)).thenReturn(user);
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/user/get/1");
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(user1.getId())))
-                .andExpect(jsonPath("email", is(user1.getEmail())));
+                .andExpect(jsonPath("id", is(user.getId())))
+                .andExpect(jsonPath("email", is(user.getEmail())));
     }
 
     @Test
-    public void createNewUser() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
-        Mockito.when(userRepository.save((User) Mockito.any())).thenReturn(user1);
+    public void updateUser() throws Exception {
+        List<User> userlist = new ArrayList<>();
+        userlist.add(user);
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
         mockMvc.perform(
-                post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(user2)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("id", is(user1.getId())));
+          put("/api/user/update/1")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(asJsonString(userUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(1))).andExpect(jsonPath("userName", is("SuperFly"))
+        );
     }
 
     @Test
-    public void createUserIDSupplied() throws Exception {
-        mockMvc.perform(
-                post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(user1)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code", is(8)));
-    }
-
-    @Test
-    public void createEmailInUse() throws Exception {
-        List<User> userlist = new ArrayList<User>();
-        userlist.add(user1);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(userlist);
-        mockMvc.perform(
-                post("/api/user/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(user1)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("code", is(8)));
-    }
-
-    @Test
-    public void createUserNameInUse() {
-
-    }
-
-    @Test
-    public void createBlankUserNameSetToEmail() {
-
-    }
-
-    @Test
-    public void createUserInternalError() {
-
-    }
-
-    @Test
-    public void updateUser() {
-
-    }
-
-    @Test
-    public void udpateUserIdMismatch() {
+    public void updateUserIdMismatch() {
 
     }
 

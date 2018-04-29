@@ -125,8 +125,12 @@ public class User {
         this.videogames = videogames;
     }
 
-    public boolean equals(User user) {
-        return ( this.id.equals(user.getId()) &&
+    //TODO Override hashcode
+
+    @Override
+    public boolean equals(Object o) {
+        User user = (User) o;
+        return ( (this.id == user.getId()) &&
                 this.email.equals(user.getEmail()) &&
                 this.firstName.equals(user.getFirstName()) &&
                 this.lastName.equals(user.getLastName()) &&
