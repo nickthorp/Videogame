@@ -43,6 +43,9 @@ public class UserControllerIT {
     private User userBlankUsername = new User("user@email.com", "", "Scratch", "Phoenix");
     private User userEmailUsername = new User(1, "user@email.com", "user@email.com", "Scratch", "Phoenix");
     private User userNoIdEmailUsername = new User("user@email.com", "user@email.com", "Scratch", "Phoenix");
+    private User user2 = new User(2, "user2@email.com", "Nerdz", "Fire", "Fox");
+    private User user2FailEmail = new User(2, "user@email.com", "Nerdz", "Fire", "Fox");
+
 
     @Before
     public void init() {
@@ -151,22 +154,57 @@ public class UserControllerIT {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(asJsonString(userUpdate)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id", is(1))).andExpect(jsonPath("userName", is("SuperFly"))
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("userName", is("SuperFly"))
         );
     }
 
     @Test
-    public void updateUserIdMismatch() {
-
+    public void updateUserIdMismatch() throws Exception {
+        mockMvc.perform(
+                put("/api/user/update/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(4))
+        );
     }
 
     @Test
-    public void updateInUseEmail() {
-
+    public void updateInUseEmail() throws Exception {
+        List<User> userlist = new ArrayList<>();
+        userlist.add(user);
+        Mockito.when(userRepository.findOne(2)).thenReturn(user2);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        mockMvc.perform(
+                put("/api/user/update/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user2FailEmail)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(2))
+                );
     }
 
     @Test
-    public void updateNotFound() {
+    public void updateEmptyEmail() throws Exception {
+        User userNoEmail = userUpdate;
+        userNoEmail.setEmail("");
+        List<User> userlist = new ArrayList<>();
+        userlist.add(user);
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
+        mockMvc.perform(
+                put("/api/user/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userNoEmail)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(5))
+                );
+    }
+
+    @Test
+    public void updateNotFound() throws Exception {
 
     }
 
