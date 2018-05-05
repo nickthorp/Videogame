@@ -54,6 +54,9 @@ public class UserController {
         if ( !id.equals(user.getId())) {
             return new ResponseEntity<>(Errors.INVALID_ID, HttpStatus.BAD_REQUEST);
         }
+        if ( user.getUserName() == null || user.getUserName().isEmpty() ) {
+            return new ResponseEntity<>(Errors.INVALID_USERNAME, HttpStatus.BAD_REQUEST);
+        }
         if ( userRepository.findOne(id) == null ) {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
@@ -63,9 +66,6 @@ public class UserController {
         }
         if ( !validateUserEmail(user.getId(),user.getEmail()) ){
             return new ResponseEntity<>(Errors.ITEM_IN_USE, HttpStatus.BAD_REQUEST);
-        }
-        if ( user.getUserName().isEmpty() || user.getUserName() == null ) {
-            return new ResponseEntity<>(Errors.INVALID_USERNAME, HttpStatus.BAD_REQUEST);
         }
         if (lookup.equals(user)) {
             return new ResponseEntity<>(Errors.NO_CHANGE, HttpStatus.OK);

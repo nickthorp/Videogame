@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -205,37 +204,62 @@ public class UserControllerIT {
 
     @Test
     public void updateNotFound() throws Exception {
-
+        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        mockMvc.perform(
+                put("/api/user/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userUpdate)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void updateNullUserName() {
-
+    public void updateNullUserName() throws Exception {
+        User usernameNull = userUpdate;
+        usernameNull.setUserName(null);
+        mockMvc.perform(
+                put("/api/user/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(usernameNull)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void updateNoChange() {
-
+    public void updateNoChange() throws Exception {
+        List<User> userList = new ArrayList<>();
+        userList.add(user);
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(userList);
+        mockMvc.perform(
+                put("/api/user/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user))
+        ).andExpect(status().isOk()).andExpect(jsonPath("code", is(0)));
     }
 
     @Test
-    public void deleteUser() {
-
+    public void deleteUser() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user, user, null);
+        mockMvc.perform(
+                delete("/api/user/delete/1")).andExpect(status().isOk());
     }
 
     @Test
-    public void deleteNotFound() {
-
+    public void deleteNotFound() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        mockMvc.perform(
+                delete("/api/user/delete/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void deleteUserIdMismatch() {
-
-    }
-
-    @Test
-    public void deleteInternalError() {
-
+    public void deleteInternalError() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        mockMvc.perform(
+                delete("/api/user/delete/1"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("code", is(3)));
     }
 
     /*
