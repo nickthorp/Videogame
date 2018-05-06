@@ -3,39 +3,54 @@ package com.hoard.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoard.entity.User;
 import com.hoard.repository.UserRepository;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration
 public class UserControllerIT {
 
+    @Autowired
+    private WebApplicationContext wac;
     private MockMvc mockMvc;
-    @Mock
+
+    @MockBean
     private UserRepository userRepository;
-    @InjectMocks
-    private UserController userController;
+
+    @Configuration
+    @EnableAutoConfiguration
+    public static class Config {
+        @Bean
+        public UserController userController() {
+            return new UserController();
+        }
+    }
+
     private User user = new User(1,"user@email.com", "xxUserxx", "Scratch", "Phoenix");
     private User userUpdate = new User(1, "user@email.com", "SuperFly", "Dank", "Memes");
     private User userNoId = new User("user@email.com", "xxUserxx", "Scratch", "Phoenix");
@@ -45,16 +60,10 @@ public class UserControllerIT {
     private User user2 = new User(2, "user2@email.com", "Nerdz", "Fire", "Fox");
     private User user2FailEmail = new User(2, "user@email.com", "Nerdz", "Fire", "Fox");
 
-
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
-    }
-
-    @After
-    public void deinit() {
-        mockMvc = null;
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
@@ -82,7 +91,7 @@ public class UserControllerIT {
 
     @Test
     public void createEmailInUse() throws Exception {
-        List<User> userlist = new ArrayList<>();
+        ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
         Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(userlist);
         mockMvc.perform(
@@ -143,7 +152,7 @@ public class UserControllerIT {
 
     @Test
     public void updateUser() throws Exception {
-        List<User> userlist = new ArrayList<>();
+        ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
         Mockito.when(userRepository.findOne(1)).thenReturn(user);
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
@@ -171,7 +180,7 @@ public class UserControllerIT {
 
     @Test
     public void updateInUseEmail() throws Exception {
-        List<User> userlist = new ArrayList<>();
+        ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
         Mockito.when(userRepository.findOne(2)).thenReturn(user2);
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
@@ -188,7 +197,7 @@ public class UserControllerIT {
     public void updateEmptyEmail() throws Exception {
         User userNoEmail = userUpdate;
         userNoEmail.setEmail("");
-        List<User> userlist = new ArrayList<>();
+        ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
         Mockito.when(userRepository.findOne(1)).thenReturn(user);
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
@@ -226,7 +235,7 @@ public class UserControllerIT {
 
     @Test
     public void updateNoChange() throws Exception {
-        List<User> userList = new ArrayList<>();
+        ArrayList<User> userList = new ArrayList<>();
         userList.add(user);
         Mockito.when(userRepository.findOne(1)).thenReturn(user);
         Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(userList);
