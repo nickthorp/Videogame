@@ -51,6 +51,40 @@ public class Videogame {
 
     public Videogame() {}
 
+    public Videogame(Integer id, User user, String title, String developer, String platform){
+        this.id = id;
+        this.user = user;
+        this.title = title;
+        this.platform = platform;
+        this.developer = developer;
+        this.isPlaying = false;
+        this.isPlayed = false;
+        this.isComplete = false;
+    }
+
+    public Videogame(User user, String title, String developer, String platform,
+                     Boolean isComplete, Boolean isPlayed, Boolean isPlaying) {
+        this.user = user;
+        this.title = title;
+        this.platform = platform;
+        this.developer = developer;
+        this.isPlaying = isPlaying;
+        this.isPlayed = isPlayed;
+        this.isComplete = isComplete;
+    }
+
+    public Videogame(Integer id, User user, String title, String developer, String platform,
+                     Boolean isComplete, Boolean isPlayed, Boolean isPlaying) {
+        this.id = id;
+        this.user = user;
+        this.title = title;
+        this.platform = platform;
+        this.developer = developer;
+        this.isPlaying = isPlaying;
+        this.isPlayed = isPlayed;
+        this.isComplete = isComplete;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -115,8 +149,13 @@ public class Videogame {
 
     public Date getDateModified() { return dateModified; }
 
-    public boolean equals( Videogame videogame) {
-        return ( this.title.equals(videogame.getTitle()) &&
+    //TODO Override hashcode
+
+    @Override
+    public boolean equals(Object o) {
+        Videogame videogame = (Videogame) o;
+        return ( this.user.equals(videogame.getUser()) &&
+                this.title.equals(videogame.getTitle()) &&
                 this.developer.equals(videogame.getDeveloper()) &&
                 this.platform.equals(videogame.getPlatform()) &&
                 this.isComplete == videogame.getIsComplete() &&

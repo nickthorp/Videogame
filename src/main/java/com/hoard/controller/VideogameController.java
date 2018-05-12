@@ -21,6 +21,25 @@ public class VideogameController {
     @Autowired
     private UserRepository userRepository;
 
+    @PostMapping(path="/create/{userId}", produces = "application/json")
+    @JsonView(View.SummaryWithUser.class)
+    public ResponseEntity create(@PathVariable(value="userId") Integer userId, @RequestBody Videogame videogame){
+        if (userId == null) {return new ResponseEntity<>(Errors.INVALID_ID,HttpStatus.BAD_REQUEST);}
+        User user = userRepository.findOne(userId);
+        if (user == null) {return new ResponseEntity<>(Errors.ITEM_NOT_FOUND,HttpStatus.NOT_FOUND);}
+        if ( videogame.getId() != null ) {
+            return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
+        }
+        if (videogame != null && !videogame.getTitle().equals("") && videogame.getTitle() != null) {
+            videogame.setUser(user);
+            return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(Errors.JSON_MALFORMED,HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //TODO Create method to do a batch create
+
     @GetMapping(path="/get/{id}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)
     public ResponseEntity getVideogame (@PathVariable(value = "id") Integer id) {
@@ -39,22 +58,6 @@ public class VideogameController {
         }
         return new ResponseEntity<>(videogameRepository.findByUserId(userId), HttpStatus.OK);
     }
-
-    @PostMapping(path="/create/{userId}", produces = "application/json")
-    @JsonView(View.SummaryWithUser.class)
-    public ResponseEntity create(@PathVariable(value="userId") Integer userId, @RequestBody Videogame videogame){
-        if (userId == null) {return new ResponseEntity<>(Errors.INVALID_ID,HttpStatus.BAD_REQUEST);}
-        User user = userRepository.findOne(userId);
-        if (user == null) {return new ResponseEntity<>(Errors.ITEM_NOT_FOUND,HttpStatus.NOT_FOUND);}
-        if (videogame != null && videogame.getTitle() != null) {
-            videogame.setUser(user);
-            return new ResponseEntity<>(videogameRepository.save(videogame), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(Errors.JSON_MALFORMED,HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    //TODO Create method to do a batch create
 
     @PutMapping(path = "/update/{id}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)

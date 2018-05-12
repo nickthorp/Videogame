@@ -33,8 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class UserControllerIT {
-
+public class UserControllerUT {
     @Autowired
     private WebApplicationContext wac;
     private MockMvc mockMvc;
@@ -67,9 +66,9 @@ public class UserControllerIT {
     }
 
     @Test
-    public void createNewUser() throws Exception {
+    public void createUser() throws Exception {
         Mockito.when(userRepository.findOne(1)).thenReturn(null);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
         Mockito.when(userRepository.save((User) Mockito.any())).thenReturn(user);
         mockMvc.perform(
                 post("/api/user/create")
@@ -105,7 +104,7 @@ public class UserControllerIT {
     @Test
     public void createUserUsernameBlank() throws Exception {
         Mockito.when(userRepository.findOne(1)).thenReturn(null);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
         Mockito.when(userRepository.save(userNoIdEmailUsername)).thenReturn(userEmailUsername);
         mockMvc.perform(
                 post("/api/user/create")
@@ -118,7 +117,7 @@ public class UserControllerIT {
     @Test
     public void createUserInternalError() throws Exception {
         Mockito.when(userRepository.findOne(1)).thenReturn(null);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<User>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
         Mockito.when(userRepository.save(userNoId)).thenReturn(null);
         mockMvc.perform(
                 post("/api/user/create")
@@ -129,7 +128,7 @@ public class UserControllerIT {
     }
 
     @Test
-    public void getNullUser() throws Exception {
+    public void readNullUser() throws Exception {
         Mockito.when(
                 userRepository.findOne(Mockito.anyInt())).thenReturn(null);
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/user/get/1");
@@ -140,7 +139,7 @@ public class UserControllerIT {
     }
 
     @Test
-    public void getKnownUser() throws Exception {
+    public void readKnownUser() throws Exception {
         Mockito.when(
                 userRepository.findOne(1)).thenReturn(user);
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/user/get/1");
@@ -274,7 +273,7 @@ public class UserControllerIT {
     /*
      * converts a Java object into JSON representation
      */
-    public static String asJsonString(final Object obj) {
+    private static String asJsonString(final Object obj) {
         try {
             return new ObjectMapper().writeValueAsString(obj);
         } catch (Exception e) {
