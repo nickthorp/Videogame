@@ -23,7 +23,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,47 +83,104 @@ public class VideogameControllerUT {
                         .content(asJsonString(vgNoID))
         )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id", is(vg.getId())));
+                .andExpect(jsonPath("id", is(vg.getId())))
+                .andExpect(jsonPath("user.email", is("user@email.com")));
     }
 
     @Test
-    public void createVideogameNoUserID() {
-
+    public void createVideogameNoUserID() throws Exception {
+        mockMvc.perform(
+                post("/api/videogame/create/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(vgNoID))
+        ).andExpect(status().isNotFound());
     }
 
     @Test
-    public void createVideogameUserNotFound() {
-
+    public void createVideogameUserNotFound() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        mockMvc.perform(
+                post("/api/videogame/create/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(vgNoID))
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void createVideogameExtraID() {
-
+    public void createVideogameExtraID() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        mockMvc.perform(
+                post("/api/videogame/create/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(vg))
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(8)));
     }
 
     @Test
-    public void createVideogameNullJSON() {
-
+    public void createVideogameNullJSON() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        mockMvc.perform(
+                post("/api/videogame/create/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("")
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
-    public void createVideogameEmptyTitle() {
-
+    public void createVideogameEmptyTitle() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Videogame game = vgNoID;
+        game.setTitle("");
+        mockMvc.perform(
+                post("/api/videogame/create/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(game))
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(7)));
     }
 
     @Test
-    public void readVideogame() {
-
+    public void readVideogame() throws Exception {
+        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        mockMvc.perform(
+                get("/api/videogame/get/1")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("user.email", is("user@email.com")));
     }
 
     @Test
-    public void readVideogameNotFound() {
-
+    public void readVideogameNotFound() throws Exception {
+        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        mockMvc.perform(
+                get("/api/videogame/get/1")
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void readVideogamesAll() {
-
+    public void readVideogamesAll() throws Exception {
+        ArrayList<Videogame> games = new ArrayList<>();
+        Videogame vg2 = new Videogame(2, user, "Super Mario World", "Nintendo", "NES", false, true, true);
+        Videogame vg3 = new Videogame(3, user, "Super Mario World 2", "Nintendo", "SNES", true, true, true);
+        games.add(vg);
+        games.add(vg2);
+        games.add(vg3);
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(videogameRepository.findByUserId(1)).thenReturn(games);
+        mockMvc.perform(
+                get("/api/videogame/get/all/1")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[*].id", containsInAnyOrder(1,2,3)));
     }
 
     @Test
@@ -136,4 +197,10 @@ public class VideogameControllerUT {
     public void updateVideogameNot() {
 
     }
+
+    @Test
+    public void deleteVideogame() {
+
+    }
 }
+

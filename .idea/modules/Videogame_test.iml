@@ -17,7 +17,7 @@
     <orderEntry type="library" name="Gradle: io.rest-assured:rest-assured:3.0.7" level="project" />
     <orderEntry type="library" name="Gradle: io.rest-assured:json-path:3.0.7" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-test:1.5.9.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: com.h2database:h2:1.4.196" level="project" />
+    <orderEntry type="library" name="Gradle: com.h2database:h2:1.4.194" level="project" />
     <orderEntry type="library" name="Gradle: io.rest-assured:json-schema-validator:3.0.7" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-aop:1.5.9.RELEASE" level="project" />

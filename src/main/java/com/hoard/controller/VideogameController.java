@@ -38,7 +38,7 @@ public class VideogameController {
         }
     }
 
-    //TODO Create method to do a batch create
+    //TODO Create method to do a batch create?
 
     @GetMapping(path="/get/{id}", produces = "application/json")
     @JsonView(View.SummaryWithUser.class)
