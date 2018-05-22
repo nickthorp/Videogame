@@ -154,7 +154,7 @@ public class Videogame {
     @Override
     public boolean equals(Object o) {
         Videogame videogame = (Videogame) o;
-        return ( this.user.equals(videogame.getUser()) &&
+        return ( //this.user.equals(videogame.getUser()) &&
                 this.title.equals(videogame.getTitle()) &&
                 this.developer.equals(videogame.getDeveloper()) &&
                 this.platform.equals(videogame.getPlatform()) &&

@@ -27,8 +27,7 @@ import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -179,28 +178,87 @@ public class VideogameControllerUT {
                 get("/api/videogame/get/all/1")
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[*].id", containsInAnyOrder(1,2,3)));
     }
 
     @Test
-    public void readVideogamesAllUserNotFound() {
-
+    public void readVideogamesAllUserNotFound() throws Exception {
+        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        mockMvc.perform(
+                get("/api/videogame/get/all/1")
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void updateVideogame() {
-
+    public void updateVideogame() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        Videogame update = new Videogame(1, user, "Super Luigi World", "Ninpo", "NES", false, true, false);
+        Mockito.when(videogameRepository.save(update)).thenReturn(update);
+        mockMvc.perform(
+                put("/api/videogame/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(update))
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(1)))
+                .andExpect(jsonPath("title", is("Super Luigi World")));
     }
 
     @Test
-    public void updateVideogameNot() {
-
+    public void updateVideogameNotFound() throws Exception {
+        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
+        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        mockMvc.perform(
+                put("/api/videogame/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(vg))
+        )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code", is(1)));
     }
 
     @Test
-    public void deleteVideogame() {
-
+    public void updateVideogameNoChange() throws Exception {
+        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
+        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(vg);
+        Mockito.when(videogameRepository.save(vg)).thenReturn(vg);
+        mockMvc.perform(
+                put("/api/videogame/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(vg))
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code", is(0)));
     }
+
+    @Test
+    public void updateVideogameMismatchIds() throws Exception {
+        Videogame update = new Videogame(2, user, "Super Mario", "Nintendogs", "SNES", false, false, true);
+        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
+        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        mockMvc.perform(
+                put("/api/videogame/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(update))
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code", is(4)));
+    }
+
+    //TODO Add more update tests
+
+    @Test
+    public void deleteVideogame() throws Exception {
+        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg, vg, null);
+        mockMvc.perform(
+                delete("/api/videogame/delete/1")
+        ).andExpect(status().isOk());
+    }
+
+    //TODO Add move delete tests
 }
 
