@@ -18,6 +18,7 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"dateCreated", "dateModified", "deleted"},
         allowGetters = true)
+@Table(name="hoard_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
