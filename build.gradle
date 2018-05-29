@@ -1,19 +1,10 @@
-group 'Videogame'
-version '1.0-SNAPSHOT'
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.9.RELEASE")
-    }
+plugins {
+    id "org.springframework.boot" version "2.0.2.RELEASE"
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
 
 jar {
     baseName = 'gs-accessing-data-mysql'
@@ -21,6 +12,8 @@ jar {
 }
 
 sourceCompatibility = 1.8
+group 'Videogame'
+version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -28,16 +21,16 @@ repositories {
 
 dependencies {
     compile 'mysql:mysql-connector-java'
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'com.microsoft.sqlserver:mssql-jdbc:6.4.0.jre8'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.0.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.0.2.RELEASE'
     compile 'io.rest-assured:json-path:3.0.7'
-    compile 'com.microsoft.sqlserver:mssql-jdbc'
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('org.springframework.boot:spring-boot-starter-test:2.0.2.RELEASE')
     testCompile 'com.h2database:h2:1.4.194'
     testCompile 'io.rest-assured:rest-assured:3.0.7'
     testCompile 'io.rest-assured:spring-mock-mvc:3.0.7'
     testCompile 'io.rest-assured:json-schema-validator:3.0.7'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'com.microsoft.sqlserver:mssql-jdbc'
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.microsoft.sqlserver:mssql-jdbc:6.4.0.jre8'
 }

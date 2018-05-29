@@ -27,7 +27,7 @@ public class UserController {
         if ( validateUserEmail(user.getEmail()) ){
             if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
                 User result = userRepository.save(user);
-                if ( result != null ){
+                if ( userRepository.findById(result.getId()).isPresent() ){
                     return new ResponseEntity<>(result, HttpStatus.CREATED);
                 } else {
                     return new ResponseEntity<>(Errors.ITEM_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -41,11 +41,10 @@ public class UserController {
     @GetMapping(path = "/get/{id}", produces = "application/json")
     @JsonView(View.SummaryWithList.class)
     public ResponseEntity getUser(@PathVariable(value = "id") Integer id) {
-        User user = userRepository.findOne(id);
-        if (user == null) {
+        if ( !userRepository.findById(id).isPresent() ) {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userRepository.findById(id).get(), HttpStatus.OK);
     }
 
     @PutMapping(path = "/update/{id}", produces = "application/json")
@@ -57,10 +56,10 @@ public class UserController {
         if ( user.getUserName() == null || user.getUserName().isEmpty() ) {
             return new ResponseEntity<>(Errors.INVALID_USERNAME, HttpStatus.BAD_REQUEST);
         }
-        if ( userRepository.findOne(id) == null ) {
+        if ( !userRepository.findById(id).isPresent() ) {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        User lookup = userRepository.findOne(id);
+        User lookup = userRepository.findById(id).get();
         if ( user.getEmail().isEmpty() || user.getEmail() == null ) {
             return new ResponseEntity<>(Errors.INVALID_EMAIL, HttpStatus.BAD_REQUEST);
         }
@@ -78,15 +77,16 @@ public class UserController {
     }
 
     //TODO Add deleting of all user's items?
+
     @DeleteMapping(path = "/delete/{id}")
     @JsonView(View.Summary.class)
     public ResponseEntity delete(@PathVariable(value="id") Integer id) {
-        if ( userRepository.findOne(id) == null ) {
+        if ( !userRepository.findById(id).isPresent() ) {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        User user = userRepository.findOne(id);
+        User user = userRepository.findById(id).get();
         userRepository.delete(user);
-        if ( userRepository.findOne(id) == null ){
+        if ( !userRepository.findById(id).isPresent() ){
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(Errors.ITEM_DELETE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);

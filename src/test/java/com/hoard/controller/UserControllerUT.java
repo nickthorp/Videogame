@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -67,9 +68,9 @@ public class UserControllerUT {
 
     @Test
     public void createUser() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
-        Mockito.when(userRepository.save((User) Mockito.any())).thenReturn(user);
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
         mockMvc.perform(
                 post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +104,7 @@ public class UserControllerUT {
 
     @Test
     public void createUserUsernameBlank() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(userEmailUsername));
         Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
         Mockito.when(userRepository.save(userNoIdEmailUsername)).thenReturn(userEmailUsername);
         mockMvc.perform(
@@ -116,9 +117,9 @@ public class UserControllerUT {
 
     @Test
     public void createUserInternalError() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.empty());
         Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
-        Mockito.when(userRepository.save(userNoId)).thenReturn(null);
+        Mockito.when(userRepository.save(userNoId)).thenReturn(user);
         mockMvc.perform(
                 post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +131,7 @@ public class UserControllerUT {
     @Test
     public void readNullUser() throws Exception {
         Mockito.when(
-                userRepository.findOne(Mockito.anyInt())).thenReturn(null);
+                userRepository.findById(Mockito.anyInt())).thenReturn(Optional.empty());
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/user/get/1");
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isNotFound())
@@ -140,8 +141,7 @@ public class UserControllerUT {
 
     @Test
     public void readKnownUser() throws Exception {
-        Mockito.when(
-                userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/user/get/1");
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
@@ -153,7 +153,7 @@ public class UserControllerUT {
     public void updateUser() throws Exception {
         ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
         Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
         mockMvc.perform(
@@ -181,7 +181,7 @@ public class UserControllerUT {
     public void updateInUseEmail() throws Exception {
         ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
-        Mockito.when(userRepository.findOne(2)).thenReturn(user2);
+        Mockito.when(userRepository.findById(2)).thenReturn(Optional.of(user2));
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
         mockMvc.perform(
                 put("/api/user/update/2")
@@ -198,7 +198,7 @@ public class UserControllerUT {
         userNoEmail.setEmail("");
         ArrayList<User> userlist = new ArrayList<>();
         userlist.add(user);
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
         Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
         mockMvc.perform(
@@ -212,7 +212,7 @@ public class UserControllerUT {
 
     @Test
     public void updateNotFound() throws Exception {
-        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        Mockito.when(userRepository.findById(Mockito.anyInt())).thenReturn(Optional.empty());
         mockMvc.perform(
                 put("/api/user/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -236,7 +236,7 @@ public class UserControllerUT {
     public void updateNoChange() throws Exception {
         ArrayList<User> userList = new ArrayList<>();
         userList.add(user);
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(userList);
         mockMvc.perform(
                 put("/api/user/update/1")
@@ -247,14 +247,14 @@ public class UserControllerUT {
 
     @Test
     public void deleteUser() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user, user, null);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user), Optional.of(user), Optional.empty());
         mockMvc.perform(
                 delete("/api/user/delete/1")).andExpect(status().isOk());
     }
 
     @Test
     public void deleteNotFound() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.empty());
         mockMvc.perform(
                 delete("/api/user/delete/1"))
                 .andExpect(status().isNotFound())
@@ -263,7 +263,7 @@ public class UserControllerUT {
 
     @Test
     public void deleteInternalError() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         mockMvc.perform(
                 delete("/api/user/delete/1"))
                 .andExpect(status().isInternalServerError())

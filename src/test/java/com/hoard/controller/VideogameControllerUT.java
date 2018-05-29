@@ -15,7 +15,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableMBeanExport;
 import org.springframework.http.MediaType;
+import org.springframework.jmx.support.RegistrationPolicy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -24,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -42,7 +45,7 @@ public class VideogameControllerUT {
     @MockBean
     private VideogameRepository videogameRepository;
     @MockBean
-    private UserRepository userRepository;
+    private UserRepository userRepository2;
 
     private User user = new User(1,"user@email.com", "xxUserxx", "Scratch", "Phoenix");
     private Videogame vg = new Videogame(1, user, "Super Mario", "Nintendogs", "SNES", false, false, true);
@@ -50,6 +53,7 @@ public class VideogameControllerUT {
 
     @Configuration
     @EnableAutoConfiguration
+    @EnableMBeanExport(registration= RegistrationPolicy.IGNORE_EXISTING)
     public static class Config {
         @Bean
         public VideogameController videogameController(){ return new VideogameController(); }
@@ -74,7 +78,7 @@ public class VideogameControllerUT {
 
     @Test
     public void createVideogame() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(videogameRepository.save(vgNoID)).thenReturn(vg);
         mockMvc.perform(
                 post("/api/videogame/create/1")
@@ -97,7 +101,7 @@ public class VideogameControllerUT {
 
     @Test
     public void createVideogameUserNotFound() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(null);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.empty());
         mockMvc.perform(
                 post("/api/videogame/create/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +113,7 @@ public class VideogameControllerUT {
 
     @Test
     public void createVideogameExtraID() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
         mockMvc.perform(
                 post("/api/videogame/create/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +125,7 @@ public class VideogameControllerUT {
 
     @Test
     public void createVideogameNullJSON() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
         mockMvc.perform(
                 post("/api/videogame/create/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +135,7 @@ public class VideogameControllerUT {
 
     @Test
     public void createVideogameEmptyTitle() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
         Videogame game = vgNoID;
         game.setTitle("");
         mockMvc.perform(
@@ -145,7 +149,7 @@ public class VideogameControllerUT {
 
     @Test
     public void readVideogame() throws Exception {
-        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        Mockito.when(videogameRepository.findById(1)).thenReturn(Optional.of(vg));
         mockMvc.perform(
                 get("/api/videogame/get/1")
         )
@@ -156,7 +160,7 @@ public class VideogameControllerUT {
 
     @Test
     public void readVideogameNotFound() throws Exception {
-        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        Mockito.when(videogameRepository.findById(Mockito.anyInt())).thenReturn(Optional.empty());
         mockMvc.perform(
                 get("/api/videogame/get/1")
         )
@@ -165,14 +169,14 @@ public class VideogameControllerUT {
     }
 
     @Test
-    public void readVideogamesAll() throws Exception {
+    public void readVideogameAll() throws Exception {
         ArrayList<Videogame> games = new ArrayList<>();
         Videogame vg2 = new Videogame(2, user, "Super Mario World", "Nintendo", "NES", false, true, true);
         Videogame vg3 = new Videogame(3, user, "Super Mario World 2", "Nintendo", "SNES", true, true, true);
         games.add(vg);
         games.add(vg2);
         games.add(vg3);
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(videogameRepository.findByUserId(1)).thenReturn(games);
         mockMvc.perform(
                 get("/api/videogame/get/all/1")
@@ -182,8 +186,8 @@ public class VideogameControllerUT {
     }
 
     @Test
-    public void readVideogamesAllUserNotFound() throws Exception {
-        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(null);
+    public void readVideogameAllUserNotFound() throws Exception {
+        Mockito.when(userRepository2.findById(Mockito.anyInt())).thenReturn(Optional.empty());
         mockMvc.perform(
                 get("/api/videogame/get/all/1")
         )
@@ -193,8 +197,8 @@ public class VideogameControllerUT {
 
     @Test
     public void updateVideogame() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
-        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(videogameRepository.findById(1)).thenReturn(Optional.of(vg));
         Videogame update = new Videogame(1, user, "Super Luigi World", "Ninpo", "NES", false, true, false);
         Mockito.when(videogameRepository.save(update)).thenReturn(update);
         mockMvc.perform(
@@ -209,8 +213,8 @@ public class VideogameControllerUT {
 
     @Test
     public void updateVideogameNotFound() throws Exception {
-        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
-        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(null);
+        Mockito.when(userRepository2.findById(Mockito.anyInt())).thenReturn(Optional.of(user));
+        Mockito.when(videogameRepository.findById(Mockito.anyInt())).thenReturn(Optional.empty());
         mockMvc.perform(
                 put("/api/videogame/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -222,8 +226,8 @@ public class VideogameControllerUT {
 
     @Test
     public void updateVideogameNoChange() throws Exception {
-        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
-        Mockito.when(videogameRepository.findOne(Mockito.anyInt())).thenReturn(vg);
+        Mockito.when(userRepository2.findById(Mockito.anyInt())).thenReturn(Optional.of(user));
+        Mockito.when(videogameRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(vg));
         Mockito.when(videogameRepository.save(vg)).thenReturn(vg);
         mockMvc.perform(
                 put("/api/videogame/update/1")
@@ -237,8 +241,8 @@ public class VideogameControllerUT {
     @Test
     public void updateVideogameMismatchIds() throws Exception {
         Videogame update = new Videogame(2, user, "Super Mario", "Nintendogs", "SNES", false, false, true);
-        Mockito.when(userRepository.findOne(Mockito.anyInt())).thenReturn(user);
-        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg);
+        Mockito.when(userRepository2.findById(Mockito.anyInt())).thenReturn(Optional.of(user));
+        Mockito.when(videogameRepository.findById(1)).thenReturn(Optional.of(vg));
         mockMvc.perform(
                 put("/api/videogame/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -252,8 +256,8 @@ public class VideogameControllerUT {
 
     @Test
     public void deleteVideogame() throws Exception {
-        Mockito.when(userRepository.findOne(1)).thenReturn(user);
-        Mockito.when(videogameRepository.findOne(1)).thenReturn(vg, vg, null);
+        Mockito.when(userRepository2.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(videogameRepository.findById(1)).thenReturn(Optional.of(vg), Optional.of(vg), Optional.empty());
         mockMvc.perform(
                 delete("/api/videogame/delete/1")
         ).andExpect(status().isOk());
