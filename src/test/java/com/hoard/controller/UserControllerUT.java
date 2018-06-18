@@ -60,6 +60,17 @@ public class UserControllerUT {
     private User user2 = new User(2, "user2@email.com", "Nerdz", "Fire", "Fox");
     private User user2FailEmail = new User(2, "user@email.com", "Nerdz", "Fire", "Fox");
 
+    /*
+     * converts a Java object into JSON representation
+     */
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
@@ -162,7 +173,7 @@ public class UserControllerUT {
                   .content(asJsonString(userUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id", is(1)))
-                .andExpect(jsonPath("userName", is("SuperFly"))
+                .andExpect(jsonPath("username", is("SuperFly"))
         );
     }
 
@@ -224,7 +235,7 @@ public class UserControllerUT {
     @Test
     public void updateNullUserName() throws Exception {
         User usernameNull = userUpdate;
-        usernameNull.setUserName(null);
+        usernameNull.setUsername(null);
         mockMvc.perform(
                 put("/api/user/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -268,16 +279,5 @@ public class UserControllerUT {
                 delete("/api/user/delete/1"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("code", is(3)));
-    }
-
-    /*
-     * converts a Java object into JSON representation
-     */
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

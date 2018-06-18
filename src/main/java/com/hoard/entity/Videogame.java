@@ -20,34 +20,42 @@ public class Videogame {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @JsonView(View.Summary.class)
     private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonView(View.SummaryWithUser.class)
     private User user;
+
     @NotBlank
     @JsonView(View.Summary.class)
     private String title;
+
     @JsonView(View.Summary.class)
     private String developer;
+
     @JsonView(View.Summary.class)
     private String platform;
+
     @JsonView(View.Summary.class)
     private Boolean isPlayed = false;
+
     @JsonView(View.Summary.class)
     private Boolean isPlaying = false;
+
     @JsonView(View.Summary.class)
     private Boolean isComplete = false;
+
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     @JsonView(View.Summary.class)
     private Date dateCreated;
+
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     @JsonView(View.Summary.class)
     private Date dateModified;
-    private Boolean deleted;
 
     public Videogame() {}
 
@@ -92,7 +100,7 @@ public class Videogame {
     public void setId(Integer id) {
         this.id = id;
     }
-    //@JsonIgnore
+
     public User getUser() { return user; }
 
     public void setUser(User user) { this.user = user; }

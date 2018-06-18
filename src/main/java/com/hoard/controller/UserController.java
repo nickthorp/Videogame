@@ -25,7 +25,7 @@ public class UserController {
             return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
         }
         if ( validateUserEmail(user.getEmail()) ){
-            if ( user.getUserName() == null || user.getUserName().equals("") ) { user.setUserName(user.getEmail()); }
+            if ( user.getUsername() == null || user.getUsername().equals("") ) { user.setUsername(user.getEmail()); }
                 User result = userRepository.save(user);
                 if ( userRepository.findById(result.getId()).isPresent() ){
                     return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -53,7 +53,7 @@ public class UserController {
         if ( !id.equals(user.getId())) {
             return new ResponseEntity<>(Errors.INVALID_ID, HttpStatus.BAD_REQUEST);
         }
-        if ( user.getUserName() == null || user.getUserName().isEmpty() ) {
+        if ( user.getUsername() == null || user.getUsername().isEmpty() ) {
             return new ResponseEntity<>(Errors.INVALID_USERNAME, HttpStatus.BAD_REQUEST);
         }
         if ( !userRepository.findById(id).isPresent() ) {
@@ -72,7 +72,7 @@ public class UserController {
         lookup.setEmail(user.getEmail());
         lookup.setFirstName(user.getFirstName());
         lookup.setLastName(user.getLastName());
-        lookup.setUserName(user.getUserName());
+        lookup.setUsername(user.getUsername());
         return new ResponseEntity<>(userRepository.save(lookup), HttpStatus.OK);
     }
 
