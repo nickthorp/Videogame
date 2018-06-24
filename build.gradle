@@ -1,10 +1,15 @@
 plugins {
     id "org.springframework.boot" version '2.0.2.RELEASE'
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'java'
+    id 'idea'
+    id 'eclipse'
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
+lombok {
+    version = '1.18.0'
+    sha256 = ""
+}
 
 bootJar {
     baseName = 'hoard-vg-service'
