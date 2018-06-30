@@ -1,8 +1,8 @@
-package com.hoard.controller;
+package com.hoard.videogame.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hoard.entity.User;
-import com.hoard.entity.Videogame;
+import com.hoard.user.entity.User;
+import com.hoard.videogame.entity.Videogame;
 import com.hoard.error.Errors;
 import com.hoard.repository.UserRepository;
 import com.hoard.repository.VideogameRepository;

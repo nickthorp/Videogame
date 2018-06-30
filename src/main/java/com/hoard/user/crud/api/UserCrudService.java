@@ -1,6 +1,6 @@
 package com.hoard.user.crud.api;
 
-import com.hoard.entity.User;
+import com.hoard.user.entity.User;
 
 import java.util.Optional;
 

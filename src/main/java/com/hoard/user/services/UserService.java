@@ -1,4 +1,4 @@
-package com.hoard.services;
+package com.hoard.user.services;
 
 import com.hoard.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

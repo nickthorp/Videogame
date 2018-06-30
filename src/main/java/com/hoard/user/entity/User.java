@@ -1,8 +1,9 @@
-package com.hoard.entity;
+package com.hoard.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.hoard.videogame.entity.Videogame;
 import com.hoard.views.View;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

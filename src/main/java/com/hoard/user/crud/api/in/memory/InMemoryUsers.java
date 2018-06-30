@@ -1,6 +1,6 @@
 package com.hoard.user.crud.api.in.memory;
 
-import com.hoard.entity.User;
+import com.hoard.user.entity.User;
 import com.hoard.user.crud.api.UserCrudService;
 import org.springframework.stereotype.Service;
 

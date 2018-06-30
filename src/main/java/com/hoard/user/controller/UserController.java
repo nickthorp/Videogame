@@ -1,9 +1,9 @@
-package com.hoard.controller;
+package com.hoard.user.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hoard.entity.User;
 import com.hoard.error.Errors;
 import com.hoard.repository.UserRepository;
+import com.hoard.user.entity.User;
 import com.hoard.views.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
