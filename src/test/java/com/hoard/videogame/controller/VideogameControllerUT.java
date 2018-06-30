@@ -1,10 +1,10 @@
-package com.hoard.controller;
+package com.hoard.videogame.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hoard.entity.User;
-import com.hoard.entity.Videogame;
-import com.hoard.repository.UserRepository;
-import com.hoard.repository.VideogameRepository;
+import com.hoard.user.entity.User;
+import com.hoard.videogame.entity.Videogame;
+import com.hoard.user.repository.UserRepository;
+import com.hoard.videogame.repository.VideogameRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

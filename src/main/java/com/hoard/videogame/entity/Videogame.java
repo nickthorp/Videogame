@@ -1,7 +1,8 @@
-package com.hoard.entity;
+package com.hoard.videogame.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.hoard.user.entity.User;
 import com.hoard.views.View;
 import javax.validation.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;

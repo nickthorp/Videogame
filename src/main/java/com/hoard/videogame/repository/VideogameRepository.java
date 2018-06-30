@@ -1,6 +1,6 @@
-package com.hoard.repository;
+package com.hoard.videogame.repository;
 
-import com.hoard.entity.Videogame;
+import com.hoard.videogame.entity.Videogame;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Collection;
