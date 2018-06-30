@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.hoard.entity.User;
 import com.hoard.error.Errors;
 import com.hoard.repository.UserRepository;
+import com.hoard.service.UserService;
 import com.hoard.views.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,11 +17,15 @@ import java.util.List;
 @Controller
 @RequestMapping(path = "/api/user")
 public class UserController {
+
     @Autowired
     private UserRepository userRepository;
 
     @PostMapping(path = "/create", produces = "application/json")
     public ResponseEntity create(@RequestBody User user) {
+
+        
+
         if ( user.getId() != null ) {
             return new ResponseEntity<>(Errors.JSON_EXTRA_FIELD, HttpStatus.BAD_REQUEST);
         }
