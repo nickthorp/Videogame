@@ -1,4 +1,4 @@
-package com.hoard.repository;
+package com.hoard.videogame.repository;
 
 import com.hoard.videogame.entity.Videogame;
 import org.springframework.data.repository.CrudRepository;

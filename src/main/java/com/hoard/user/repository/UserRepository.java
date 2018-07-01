@@ -1,4 +1,4 @@
-package com.hoard.repository;
+package com.hoard.user.repository;
 
 import com.hoard.user.entity.User;
 import org.springframework.data.repository.CrudRepository;

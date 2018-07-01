@@ -1,8 +1,8 @@
 package com.hoard.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hoard.repository.UserRepository;
 import com.hoard.user.entity.User;
+import com.hoard.user.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
