@@ -1,28 +1,27 @@
 package com.hoard.user.controller;
 
-import com.hoard.error.Errors;
 import com.hoard.user.auth.api.UserAuthenticationService;
-import com.hoard.user.crud.api.UserCrudService;
 import com.hoard.user.entity.User;
+import com.hoard.user.service.iUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/public/users")
 final class PublicUserController {
-    private UserAuthenticationService authentication;
-    private UserCrudService users;
 
-    @PostMapping("/register")
-    String register(
-            @RequestParam("username") final String username,
-            @RequestParam("password") final String password) {
-        //users.save( new User(username, password) );
+    //private UserAuthenticationService authentication;
+    private iUserService users;
 
-        return login(username, password);
+    @PostMapping(path = "/register")
+    String register(@RequestBody final User user) {
+        ResponseEntity response = users.create(user);
+        if(response.getStatusCode() != HttpStatus.CREATED) {
+            return "Oops! Something went wrong!";
+        }
+        //return login(user.getUsername(), user.getPassword());
     }
 
     @PostMapping("/login")
