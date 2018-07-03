@@ -19,7 +19,6 @@ final public class TokenAuthenticationProvider extends AbstractUserDetailsAuthen
         this.auth = auth;
     }
 
-
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 

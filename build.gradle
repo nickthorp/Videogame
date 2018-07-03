@@ -12,12 +12,12 @@ lombok {
 }
 
 bootJar {
-    baseName = 'hoard-vg-service'
+    baseName = 'hoard-service'
     version =  '0.1.0'
 }
 
 sourceCompatibility = 1.8
-group 'Videogame'
+group 'Hoard'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -25,6 +25,9 @@ repositories {
 }
 
 def spring_version = '2.0.2.RELEASE'
+def guava_version = '25.0-jre'
+def jwt_version = '0.9.0'
+def joda_version = '2.9.9'
 
 dependencies {
     compile "mysql:mysql-connector-java:8.0.11"
@@ -32,6 +35,9 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-web:${spring_version}"
     compile "org.springframework.boot:spring-boot-starter-data-jpa:${spring_version}"
     compile "org.springframework.boot:spring-boot-starter-security:${spring_version}"
+    compile "com.google.guava:guava:${guava_version}"
+    compile "io.jsonwebtoken:jjwt:${jwt_version}"
+    compile "joda-time:joda-time:${joda_version}"
     compile "io.rest-assured:json-path:3.0.7"
 
     testCompile "org.springframework.boot:spring-boot-starter-test:${spring_version}"

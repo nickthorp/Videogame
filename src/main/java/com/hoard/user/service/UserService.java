@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 final class UserService implements iUserService {
@@ -19,13 +20,13 @@ final class UserService implements iUserService {
     public UserService(){}
 
     private Boolean validateUserEmail(Integer id, String email) {
-        List<User> check = userRepository.findByEmail(email);
-        return check.isEmpty() || check.size() == 1 && check.get(0).getId().equals(id);
+        Optional<User> check = userRepository.findByEmail(email);
+        return !check.isPresent() || check.get().getId().equals(id);
     }
 
     private Boolean validateUserEmail(String email) {
-        List<User> check = userRepository.findByEmail(email);
-        return check.isEmpty();
+        Optional<User> check = userRepository.findByEmail(email);
+        return !check.isPresent();
     }
 
     @Override
@@ -53,6 +54,13 @@ final class UserService implements iUserService {
             return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(userRepository.findById(id).get(), HttpStatus.OK);
+    }
+
+    public ResponseEntity read(String email) {
+        if ( !userRepository.findByEmail(email).isPresent() ) {
+            return new ResponseEntity<>(Errors.ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(userRepository.findByEmail(email).get(), HttpStatus.OK);
     }
 
     @Override

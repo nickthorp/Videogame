@@ -41,6 +41,7 @@ public class User implements UserDetails {
     private String username;
 
     private String password;
+    //private String token;
 
     @JsonView(View.Summary.class)
     private String firstName;
@@ -66,10 +67,10 @@ public class User implements UserDetails {
     @JsonView(View.Summary.class)
     private Date dateModified;
 
-    private Boolean isAccountNonExpired;
-    private Boolean isAccountNonLocked;
-    private Boolean isCredentialsNonExpired;
-    private Boolean isEnabled;
+    private Boolean isAccountNonExpired = true;
+    private Boolean isAccountNonLocked = true;
+    private Boolean isCredentialsNonExpired = true;
+    private Boolean isEnabled = true;
 
     //private Collection<GrantedAuthority> authorities;
 
@@ -117,11 +118,15 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return this.password;
     }
 
     public void setPassword(){}
+/*
+    public String getToken() { return token; }
 
+    public void setToken(String token) { this.token = token; }
+*/
     public String getFirstName() {
         return firstName;
     }
@@ -176,6 +181,22 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isEnabled;
+    }
+
+    public void setAccountNonExpired(Boolean accountNonExpired) {
+        isAccountNonExpired = accountNonExpired;
+    }
+
+    public void setAccountNonLocked(Boolean accountNonLocked) {
+        isAccountNonLocked = accountNonLocked;
+    }
+
+    public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
+        isCredentialsNonExpired = credentialsNonExpired;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        isEnabled = enabled;
     }
 
     @JsonIgnore

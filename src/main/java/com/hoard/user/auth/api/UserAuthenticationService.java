@@ -9,11 +9,11 @@ public interface UserAuthenticationService {
     /**
      * Logs in with the given {@code username} and {@code password}.
      *
-     * @param username a username
+     * @param email a username
      * @param password a password
      * @return an {@link Optional} of a user when login succeeds
      */
-    Optional<String> login(String username, String password);
+    Optional<String> login(String email, String password);
 
     /**
      * Finds a user by its dao-key.

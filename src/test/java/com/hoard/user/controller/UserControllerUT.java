@@ -3,6 +3,7 @@ package com.hoard.user.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hoard.user.entity.User;
 import com.hoard.user.repository.UserRepository;
+import com.hoard.user.service.iUserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
@@ -41,6 +41,8 @@ public class UserControllerUT {
 
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private iUserService userService;
 
     @Configuration
     @EnableAutoConfiguration
@@ -80,7 +82,7 @@ public class UserControllerUT {
     @Test
     public void createUser() throws Exception {
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(user);
         mockMvc.perform(
                 post("/api/user/create")
@@ -102,9 +104,7 @@ public class UserControllerUT {
 
     @Test
     public void createEmailInUse() throws Exception {
-        ArrayList<User> userlist = new ArrayList<>();
-        userlist.add(user);
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(userlist);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(user));
         mockMvc.perform(
                 post("/api/user/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,7 +116,7 @@ public class UserControllerUT {
     @Test
     public void createUserUsernameBlank() throws Exception {
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(userEmailUsername));
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(userNoIdEmailUsername)).thenReturn(userEmailUsername);
         mockMvc.perform(
                 post("/api/user/create")
@@ -129,7 +129,7 @@ public class UserControllerUT {
     @Test
     public void createUserInternalError() throws Exception {
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.empty());
-        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(new ArrayList<>());
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(userRepository.save(userNoId)).thenReturn(user);
         mockMvc.perform(
                 post("/api/user/create")
@@ -162,10 +162,8 @@ public class UserControllerUT {
 
     @Test
     public void updateUser() throws Exception {
-        ArrayList<User> userlist = new ArrayList<>();
-        userlist.add(user);
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(Optional.of(user));
         Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
         mockMvc.perform(
           put("/api/user/update/1")
@@ -190,10 +188,8 @@ public class UserControllerUT {
 
     @Test
     public void updateInUseEmail() throws Exception {
-        ArrayList<User> userlist = new ArrayList<>();
-        userlist.add(user);
         Mockito.when(userRepository.findById(2)).thenReturn(Optional.of(user2));
-        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(Optional.of(user));
         mockMvc.perform(
                 put("/api/user/update/2")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -207,10 +203,8 @@ public class UserControllerUT {
     public void updateEmptyEmail() throws Exception {
         User userNoEmail = userUpdate;
         userNoEmail.setEmail("");
-        ArrayList<User> userlist = new ArrayList<>();
-        userlist.add(user);
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(userlist);
+        Mockito.when(userRepository.findByEmail(userUpdate.getEmail())).thenReturn(Optional.of(user));
         Mockito.when(userRepository.save(userUpdate)).thenReturn(userUpdate);
         mockMvc.perform(
                 put("/api/user/update/1")
@@ -245,10 +239,8 @@ public class UserControllerUT {
 
     @Test
     public void updateNoChange() throws Exception {
-        ArrayList<User> userList = new ArrayList<>();
-        userList.add(user);
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(userList);
+        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
         mockMvc.perform(
                 put("/api/user/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
